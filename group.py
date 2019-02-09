@@ -15,6 +15,9 @@ class Group:
         "User" : []
     }
 
+    # Creating a lock to be opened by the key sent to get the groups
+    __lock = "Something"
+
     # This will load in from the database for use in the program
     def load_groups():
         # TODO: figure out database engine, then integration with python
@@ -41,7 +44,7 @@ class Group:
         return None
 
     def get_system_engineer(key):
-        
+
         return None
 
     def get_user(key):
