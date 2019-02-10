@@ -1,2 +1,19 @@
 {% block content %}
+{% if incorrect_login %}
+    <p><font color="red">Incorrect Login, please try again</font> </p>
+    <p><font color="red">{{login_attemps}}/5 attemps remaing</font> </p>
+{% elif account_lockout %}
+    <p><font color="red">This account is locked out</font> </p>
+    <p><font color="red">Please contact an administrator to unlock your account</font> </p>
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    <fieldset>
+        <legend>Login</legend>
+        <input type="hidden" name="logon">
+        Username: <input type="text" name="username">
+        Password: <input type="password" name="password">
+        <input type="submit">
+    </fieldset>
+</form>
 {% endblock content %}
