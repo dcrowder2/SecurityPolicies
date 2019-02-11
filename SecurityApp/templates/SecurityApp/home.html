@@ -1,4 +1,11 @@
 {% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
 {% if incorrect_login %}
     <p><font color="red">Incorrect Login, please try again</font> </p>
     <p><font color="red">{{login_attemps}}/5 attemps remaing</font> </p>
