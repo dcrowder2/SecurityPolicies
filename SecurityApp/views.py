@@ -4,7 +4,6 @@ from django.http import HttpResponseRedirect
 
 
 def home(request):
-
     if request.method == "POST":
         if request.POST['logon']:
             return logon(request)
@@ -21,5 +20,8 @@ def logon(request):
         login(request, authentication)
         # the only page we can redirct to is the program page, so no need for it to be dynamic
         return HttpResponseRedirect('programs')
-    context = {'logon_failed': True}
+    context = {
+        'logon_failed': True,
+        'logon_attempts': 0
+    }
     return render(request, 'SecurityApp/home.html', context=context)
