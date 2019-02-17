@@ -1,0 +1,24 @@
+Login attempt: 2019-02-17 12:17:24
+Username: dakota
+Incorrect password, 1 unsuccessful attempt(s)
+----------------------------
+Login attempt: 2019-02-17 12:17:34
+Username: daktoa
+User does not exist
+----------------------------
+Login attempt: 2019-02-17 12:17:37
+Username: dakota
+Incorrect password, 2 unsuccessful attempt(s)
+----------------------------
+Login attempt: 2019-02-17 12:17:42
+Username: dakota
+Incorrect password, 3 unsuccessful attempt(s)
+----------------------------
+Login attempt: 2019-02-17 12:17:44
+Username: dakota
+Incorrect password, 4 unsuccessful attempt(s)
+----------------------------
+Login attempt: 2019-02-17 12:17:46
+Username: dakota
+User locked out
+----------------------------
