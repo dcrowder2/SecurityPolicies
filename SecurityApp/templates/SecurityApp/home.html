@@ -8,16 +8,18 @@
 {% endif %}
 {% if incorrect_login %}
     <p><font color="red">Incorrect Login, please try again</font> </p>
-    <p><font color="red">{{login_attemps}}/5 attemps remaing</font> </p>
-{% elif account_lockout %}
+    <p><font color="red">{{login_attempts}}/5 attemps remaing</font> </p>
+{% elif user_locked_out %}
     <p><font color="red">This account is locked out</font> </p>
     <p><font color="red">Please contact an administrator to unlock your account</font> </p>
+{% elif not_found %}
+    <p><font color="red">Incorrect Login</font></p>
 {% endif %}
 <form action="" method="post">
     {% csrf_token %}
     <fieldset>
         <legend>Login</legend>
-        <input type="hidden" name="logon">
+        <input type="hidden" name="logon" value=True>
         Username: <input type="text" name="username">
         Password: <input type="password" name="password">
         <input type="submit">
