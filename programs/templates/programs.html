@@ -1,0 +1,21 @@
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<form action="" method="post">
+    {% csrf_token %}
+  <select name="programs" size="6">
+      {% for program in programs %}
+        <option value="{{program.name}}">{{program.name}}</option>
+      {% endfor %}
+  </select>
+  <input type="submit">
+</form>
+
+
+{% endblock content %}
