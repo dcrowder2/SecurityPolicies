@@ -7,10 +7,14 @@
     {% endfor %}
 {% endif %}
 
+<p>Hello {{user}}</p>
+<p>You are in group {{group}}</p>
+
 <form action="" method="post">
     {% csrf_token %}
   <select name="programs" size="6">
       {% for program in programs %}
+        {% if not {{group}} == "user" and {{program.permission_level}} == "A" or
         <option value="{{program.name}}">{{program.name}}</option>
       {% endfor %}
   </select>
