@@ -10,12 +10,26 @@
 <p>Hello {{user}}</p>
 <p>You are in group {{group}}</p>
 
+{% if accessed %}
+<p>You accessed {{accessed}}</p>
+{% endif %}
+
 <form action="" method="post">
     {% csrf_token %}
   <select name="programs" size="6">
       {% for program in programs %}
-        {% if not {{group}} == "user" and {{program.permission_level}} == "A" or
-        <option value="{{program.name}}">{{program.name}}</option>
+      {# This if statement became super annoying, so I kept changing it till it worked, so it stays in a working state #}
+        {% if group == "super_admin" or group == "admin" %}
+            <option value="{{program.name}}">{{program.name}}</option>
+        {% elif group == "software_engineer"%}
+            {% if program.permission_level == 'U' or program.permission_level == 'SE' %}
+                <option value="{{program.name}}">{{program.name}}</option>
+            {% endif %}
+        {% elif group == "user"%}
+            {% if  program.permission_level == 'U' %}
+             <option value="{{program.name}}">{{program.name}}</option>
+            {% endif %}
+        {% endif %}
       {% endfor %}
   </select>
   <input type="submit">
