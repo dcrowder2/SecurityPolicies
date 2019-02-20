@@ -17,14 +17,16 @@ def programs(request):
 	}
 	if request.method == "POST":
 		file = open("program_access.log", "a")
-		file.write(log_write(username, request.POST['programs']))
+		file.write(log_write(username, request.POST.get('programs', 'nothing')))
 		file.close()
-		context['accessed'] = request.POST['programs']
+		context['accessed'] = request.POST.get('programs', 'nothing')
 		return render(request, 'programs.html', context=context)
 	return render(request, 'programs.html', context=context)
 
 
 def log_write(username, application):
+	if application == 'nothing':
+		return ''
 	return_string = "Application access\n"
 	return_string += "Time: " + str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')) + "\n"
 	return_string += "Username: " + username + "\n"
