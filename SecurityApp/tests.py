@@ -2,8 +2,6 @@ from django.test import TestCase, RequestFactory, Client
 from SecurityApp.views import logon
 from SecurityApp.models import Logon, User
 import time
-import datetime
-from django.contrib.sessions.middleware import SessionMiddleware
 
 
 

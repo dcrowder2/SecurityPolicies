@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import Programs
 from django.contrib.auth.decorators import login_required
 import time, datetime
+from django.http import HttpResponseRedirect
 # Create your views here.
 
 
@@ -22,6 +23,7 @@ def programs(request):
 		context['accessed'] = request.POST['programs']
 		return render(request, 'programs.html', context=context)
 	return render(request, 'programs.html', context=context)
+
 
 
 def log_write(username, application):
