@@ -9,9 +9,13 @@
 {% if incorrect_login %}
     <p><font color="red">Incorrect Login, please try again</font> </p>
     <p><font color="red">{{login_attempts}}/5 attemps remaing</font> </p>
-{% elif user_locked_out %}
+{% elif hard_lock %}
     <p><font color="red">This account is locked out</font> </p>
     <p><font color="red">Please contact an administrator to unlock your account</font> </p>
+{% elif user_locked_out %}
+    <p><font color="red">This account is locked out</font> </p>
+    <p><font color="red">It will be unlocked in {{time}} minutes</font> </p>
+    <p><font color="red">You have been locked out {{lockouts}} times, 3 locks and you need to contact an admin to unlock</font> </p>
 {% elif not_found %}
     <p><font color="red">Incorrect Login</font></p>
 {% endif %}
