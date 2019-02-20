@@ -30,14 +30,18 @@ def login_failed(sender, **kwargs):
                 # if the timeout timer started more than 5 minutes ago reset it
                 if (time.time() - user.logon.attempt_time) >= 300:
                     user.logon.logon_attempts = 0
-                    user.logon.attempt_time = time.time()
+                    user.logon.attempt_time = round(time.time())
                 user.logon.logon_attempts += 1
                 user.logon.save()
                 # if the user has 5 or more failed attempts in the last 5 minutes lock them
                 if user.logon.logon_attempts >= 5 and (time.time() - user.logon.attempt_time) < 300:
                     user.logon.user_lockout = True
-                    user.logon.lockout_time = time.time()
+                    user.logon.lockout_time = round(time.time())
                     user.logon.lockouts += 1
+                    user.logon.save()
+                # Hard locking a user who failed 3 times
+                if user.logon.lockouts >= 3:
+                    user.logon.hard_lockout = True
                     user.logon.save()
                 __attempts = user.logon.logon_attempts
             else:
@@ -67,14 +71,20 @@ def logon(request):
                 login(request, authentication)
                 return HttpResponseRedirect('programs')
             else:
-                file.write(log_write(username, False))
-                file.close()
-                context = {
-                    'user_locked_out': True,
-                    'time': str(datetime.timedelta(seconds=(900-(time.time()-authentication.logon.lockout_time)))),
-                    'lockouts': authentication.logon.lockouts
-                           }
-                return render(request, 'SecurityApp/home.html', context=context)
+                if time.time() - authentication.logon.lockout_time >= 900 and authentication.logon.lockouts < 3:
+                    authentication.logon.user_lockout = False
+                    authentication.logon.save()
+                    login(request, authentication)
+                    return HttpResponseRedirect('programs')
+                else:
+                    file.write(log_write(username, False))
+                    file.close()
+                    context = {
+                        'user_locked_out': True,
+                        'time': str(datetime.timedelta(seconds=round((900-(time.time()-authentication.logon.lockout_time))))),
+                        'lockouts': authentication.logon.lockouts
+                               }
+                    return render(request, 'SecurityApp/home.html', context=context)
         else:
             file.write(log_write(username, False))
             file.close()
@@ -84,17 +94,20 @@ def logon(request):
         file.write(log_write(username, False))
         file.close()
         user = User.objects.get(username=username)
-        if user.logon.user_lockout:
-            context = {
-                'user_locked_out': True,
-                'time': str(datetime.timedelta(seconds=(900-(time.time()-user.logon.lockout_time)))),
-                'lockouts': user.logon.lockouts
-                       }
+        if user.logon.hard_lockout:
+            context = {"hard_lock": True}
         else:
-            context = {
-                'incorrect_login': True,
-                'login_attempts': 5 - __attempts
-            }
+            if user.logon.user_lockout:
+                context = {
+                    'user_locked_out': True,
+                    'time': str(datetime.timedelta(seconds=round((900-(time.time()-user.logon.lockout_time))))),
+                    'lockouts': user.logon.lockouts
+                           }
+            else:
+                context = {
+                    'incorrect_login': True,
+                    'login_attempts': 5 - __attempts
+                }
     else:
         file.write(log_write(username, False))
         file.close()
