@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Programs
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 import time, datetime
 # Create your views here.
@@ -10,11 +11,15 @@ def programs(request):
 	username = request.user.username
 	group = request.user.groups.all()
 	program_list = Programs.objects.all()
-	context = {
-		'programs': program_list,
-		'user': username,
-		'group': str(group[0])
-	}
+	try:
+		context = {
+			'programs': program_list,
+			'user': username,
+			'group': str(group[0])
+		}
+	except IndexError:
+		messages.error(request, f'{username} is not in any group, contact an administrator')
+		return redirect('/')
 	if request.method == "POST":
 		file = open("program_access.log", "a")
 		file.write(log_write(username, request.POST.get('programs', 'nothing')))
