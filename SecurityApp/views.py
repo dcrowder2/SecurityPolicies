@@ -13,7 +13,6 @@ def home(request):
     if request.method == "POST":
         if request.POST['logon']:
             return logon(request)
-
     return render(request, 'SecurityApp/home.html')
 # Create your views here.
 
@@ -26,12 +25,28 @@ def login_failed(sender, **kwargs):
     if User.objects.exclude().filter(username=name).exists():
         __exists = True
         user = User.objects.get(username=name)
-        user.logon.logon_attempts += 1
-        user.logon.save()
-        if user.logon.logon_attempts >= 5:
-            user.logon.user_lockout = True
-            user.logon.save()
-        __attempts = user.logon.logon_attempts
+        if not user.logon.hard_lockout:
+            if not user.logon.user_lockout:
+                # if the timeout timer started more than 5 minutes ago reset it
+                if (time.time() - user.logon.attempt_time) >= 300:
+                    user.logon.logon_attempts = 0
+                    user.logon.attempt_time = time.time()
+                user.logon.logon_attempts += 1
+                user.logon.save()
+                # if the user has 5 or more failed attempts in the last 5 minutes lock them
+                if user.logon.logon_attempts >= 5 and (time.time() - user.logon.attempt_time) < 300:
+                    user.logon.user_lockout = True
+                    user.logon.lockout_time = time.time()
+                    user.logon.lockouts += 1
+                    user.logon.save()
+                __attempts = user.logon.logon_attempts
+            else:
+                if time.time() - user.logon.lockout_time >= 900 and user.logon.lockouts < 3:
+                    user.logon.user_lockout = False
+                    user.logon.save()
+                elif user.logon.lockouts >= 3:
+                    user.logon.hard_lockout = True
+                    user.logon.save()
     return
 
 
@@ -43,17 +58,28 @@ def logon(request):
     user_login_failed.connect(login_failed)
     authentication = authenticate(request, username=username, password=password)
     if authentication is not None:
-        if not authentication.logon.user_lockout:
-            file.write(log_write(username, True))
-            file.close()
-            authentication.logon.logon_attempts = 0
-            authentication.logon.save()
-            login(request, authentication)
-            return HttpResponseRedirect('programs')
+        if not authentication.logon.hard_lockout:
+            if not authentication.logon.user_lockout:
+                file.write(log_write(username, True))
+                file.close()
+                authentication.logon.logon_attempts = 0
+                authentication.logon.save()
+                login(request, authentication)
+                return HttpResponseRedirect('programs')
+            else:
+                file.write(log_write(username, False))
+                file.close()
+                print(str(datetime.timedelta(seconds=(900-(time.time()-authentication.logon.lockout_time)))))
+                context = {
+                    'user_locked_out': True,
+                    'time': str(datetime.timedelta(seconds=(900-(time.time()-authentication.logon.lockout_time)))),
+                    'lockouts': authentication.logon.lockouts
+                           }
+                return render(request, 'SecurityApp/home.html', context=context)
         else:
             file.write(log_write(username, False))
             file.close()
-            context = {'user_locked_out': True}
+            context = {'hard_lock': True}
             return render(request, 'SecurityApp/home.html', context=context)
     if __exists:
         file.write(log_write(username, False))
