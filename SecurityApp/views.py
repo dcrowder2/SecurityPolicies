@@ -69,7 +69,6 @@ def logon(request):
             else:
                 file.write(log_write(username, False))
                 file.close()
-                print(str(datetime.timedelta(seconds=(900-(time.time()-authentication.logon.lockout_time)))))
                 context = {
                     'user_locked_out': True,
                     'time': str(datetime.timedelta(seconds=(900-(time.time()-authentication.logon.lockout_time)))),
@@ -84,8 +83,13 @@ def logon(request):
     if __exists:
         file.write(log_write(username, False))
         file.close()
-        if User.objects.get(username=username).logon.user_lockout:
-            context = {'user_locked_out': True}
+        user = User.objects.get(username=username)
+        if user.logon.user_lockout:
+            context = {
+                'user_locked_out': True,
+                'time': str(datetime.timedelta(seconds=(900-(time.time()-user.logon.lockout_time)))),
+                'lockouts': user.logon.lockouts
+                       }
         else:
             context = {
                 'incorrect_login': True,
