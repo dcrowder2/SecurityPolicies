@@ -11,6 +11,7 @@ def register(request):
         form = UserCreationForm(request.POST)
         try:
             form.data['username'].encode('ascii')
+            form.data['password1'].encode('ascii')
             if not (re.match(r'(.*[A-Z].*)', form.data['password1']) and re.match(r'(.*[a-z].*)', form.data['password1'])
                     and re.match(r'(.*\d.*)', form.data['password1'])):
                 messages.error(request, 'Password must contain an uppercase letter, a lowercase letter, and a digit')
